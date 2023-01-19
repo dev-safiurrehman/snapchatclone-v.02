@@ -12,6 +12,13 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.ar.core.Config;
+import com.google.ar.core.Session;
+import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.Renderable;
+import com.google.ar.sceneform.rendering.Texture;
+import com.google.ar.sceneform.ux.ArFragment;
+import com.google.ar.sceneform.ux.AugmentedFaceNode;
 import com.simcoder.snapchatclone.MainActivity;
 import com.simcoder.snapchatclone.R;
 import com.wonderkiln.camerakit.CameraKit;
@@ -21,17 +28,17 @@ import com.wonderkiln.camerakit.CameraView;
 
 /**
  * Fragment that handles the camera view. Makes use of the CameraKit library
- * in order to achieve this.
+ * and ARCore/Sceneform libraries in order to achieve this.
  */
 public class CameraViewFragment extends Fragment implements View.OnClickListener {
 
     private View view;
-
     private CameraView mCamera;
-
     private ImageButton mProfile;
     private ImageButton mFlash;
 
+    private Session session;
+    private ModelRenderable renderable;
 
     public static CameraViewFragment newInstance() {
         return new CameraViewFragment();
@@ -42,46 +49,69 @@ public class CameraViewFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_camera_view, container, false);
 
+        // Initialize ARCore/Sceneform
+        ArFragment arFragment = (ArFragment) getChildFragmentManager().findFragmentById(R.id.ux_fragment);
+        arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
+            arFragment.getArSceneView().getScene().getAllTrackables(AugmentedFace.class).forEach(
+                    face -> {
+                        // Do something with the face mesh
+                        // Create a face mesh
+                        AugmentedFaceNode augmentedFaceNode = new AugmentedFaceNode(face);
+                        // Add the face mesh
+                        augmentedFaceNode.setParent(arFragment.getArSceneView().getScene());
+                        // Load the 3D face filter
+                        ModelRenderable.builder()
+                                .setSource(getContext(), R.raw.fox_face)
+                                .build()
+                                .thenAccept(renderable -> {
+                                    // Apply the 3D face filter to the face mesh
+                                    augmentedFaceNode.setFaceMeshTexture(renderable);
+                                });
+                    });
+        });
+
         initializeObjects();
 
         return view;
     }
 
+
+
     /**
-     * Initializes the UI elements
-     */
-    private void initializeObjects() {
-        mCamera = view.findViewById(R.id.camera);
-        ImageButton mReverse = view.findViewById(R.id.reverse);
-        mProfile = view.findViewById(R.id.profile);
-        EditText mSearch = view.findViewById(R.id.search);
-        mFlash = view.findViewById(R.id.flash);
+         * Initializes the UI elements
+         */
+        private void initializeObjects() {
+            mCamera = view.findViewById(R.id.camera);
+            ImageButton mReverse = view.findViewById(R.id.reverse);
+            mProfile = view.findViewById(R.id.profile);
+            EditText mSearch = view.findViewById(R.id.search);
+            mFlash = view.findViewById(R.id.flash);
 
-        mReverse.setOnClickListener(this);
-        mProfile.setOnClickListener(this);
-        mSearch.setOnClickListener(this);
-        mFlash.setOnClickListener(this);
+            mReverse.setOnClickListener(this);
+            mProfile.setOnClickListener(this);
+            mSearch.setOnClickListener(this);
+            mFlash.setOnClickListener(this);
 
-        mCamera.setFlash(CameraKit.Constants.FLASH_ON);
+            mCamera.setFlash(CameraKit.Constants.FLASH_ON);
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (getActivity() != null) {
-                    if (((MainActivity) getActivity()).getUser().getImage() != null)
-                        Glide.with(getActivity())
-                                .load(((MainActivity) getActivity()).getUser().getImage())
-                                .apply(RequestOptions.circleCropTransform())
-                                .into(mProfile);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (getActivity() != null) {
+                        if (((MainActivity) getActivity()).getUser().getImage() != null)
+                            Glide.with(getActivity())
+                                    .load(((MainActivity) getActivity()).getUser().getImage())
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(mProfile);
 
-                    handler.postDelayed(this, 1000);
+                        handler.postDelayed(this, 1000);
+                    }
+
                 }
+            }, 1000);
 
-            }
-        }, 1000);
-
-    }
+        }
 
     /**
      * Captures image and updates the variable of the bitmap in the MainActivity
@@ -119,7 +149,6 @@ public class CameraViewFragment extends Fragment implements View.OnClickListener
             mCamera.setFlash(CameraKit.Constants.FLASH_ON);
         }
     }
-
 
     /**
      * Handles onClick events
@@ -162,3 +191,4 @@ public class CameraViewFragment extends Fragment implements View.OnClickListener
         super.onPause();
     }
 }
+

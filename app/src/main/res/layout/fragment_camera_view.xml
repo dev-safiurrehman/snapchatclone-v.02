@@ -19,6 +19,11 @@
         app:ckPinchToZoom="true"
         app:ckVideoQuality="highest"
         app:ckZoom="1.0" />
+    <fragment
+        android:id="@+id/ux_fragment"
+        android:name="com.google.ar.sceneform.ux.ArFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:layout_width="match_parent"

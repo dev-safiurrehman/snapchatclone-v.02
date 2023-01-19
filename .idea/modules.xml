@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sceneformsrc/sceneform/android.sceneform.iml" filepath="$PROJECT_DIR$/.idea/modules/sceneformsrc/sceneform/android.sceneform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sceneformux/ux/android.sceneformux.iml" filepath="$PROJECT_DIR$/.idea/modules/sceneformux/ux/android.sceneformux.iml" />
     </modules>
   </component>
 </project>
