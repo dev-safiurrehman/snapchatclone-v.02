@@ -132,6 +132,7 @@ public class CameraViewFragment extends Fragment implements View.OnClickListener
 
 
 
+
     }
 
     /**
